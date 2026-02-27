@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #fdf2f8;
+  --color-primary-100: #fce7f3;
+  --color-primary-200: #fbcfe8;
+  --color-primary-300: #f9a8d4;
+  --color-primary-400: #f472b6;
+  --color-primary-500: #ec4899;
+  --color-primary-600: #db2777;
+  --color-primary-700: #be185d;
+  --color-primary-800: #9d174d;
+  --color-primary-900: #831843;
+
+  --color-accent-light: #fda4af;
+  --color-accent-dark: #e11d48;
+
+  --color-bg-light: #fafafa;
+  --color-bg-dark: #121212;
+  --color-card-light: #ffffff;
+  --color-card-dark: #1e1e1e;
+
+  --color-text-light: #1f2937;
+  --color-text-dark: #f3f4f6;
+  --color-text-muted-light: #4b5563;
+  --color-text-muted-dark: #9ca3af;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-[var(--color-bg-light)] text-[var(--color-text-light)] transition-colors duration-300 font-sans antialiased;
+  }
+
+  .dark body {
+    @apply bg-[var(--color-bg-dark)] text-[var(--color-text-dark)];
+  }
+}
+
+@layer components {
+  .section-container {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20;
+  }
+
+  .heading-lg {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6;
+  }
+
+  .heading-md {
+    @apply text-2xl md:text-3xl font-bold mb-4;
+  }
+
+  .card {
+    @apply bg-[var(--color-card-light)] dark:bg-[var(--color-card-dark)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-800;
+  }
+}
