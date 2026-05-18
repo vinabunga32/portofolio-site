@@ -1,97 +1,55 @@
-import { motion } from 'framer-motion'
+// src/components/Experience.jsx
+import React from "react";
+import { timelineData } from "./ExperienceData";
+import { useNavigate } from "react-router-dom";
 
 const Experience = () => {
-    const experiences = [
-        {
-            id: 1,
-            role: "Senior Frontend Developer",
-            company: "Tech Solutions Inc.",
-            duration: "2022 - Present",
-            description: "Led a team of 4 developers in rebuilding the core platform using React and Tailwind CSS, improving load times by 40%."
-        },
-        {
-            id: 2,
-            role: "Web Developer",
-            company: "Creative Agency",
-            duration: "2020 - 2022",
-            description: "Developed and maintained multiple client websites focusing on responsive design and interactive animations."
-        },
-        {
-            id: 3,
-            role: "Junior Developer",
-            company: "Startup Hub",
-            duration: "2018 - 2020",
-            description: "Assisted in building MVP for a fintech application using HTML, CSS, and basic JavaScript."
-        }
-    ]
-
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: { staggerChildren: 0.2 }
-        }
-    }
-
-    const itemVariants = {
-        hidden: { opacity: 0, x: -30 },
-        visible: {
-            opacity: 1,
-            x: 0,
-            transition: { duration: 0.5 }
-        }
-    }
+    const navigate = useNavigate();
 
     return (
         <section id="experience" className="section-container relative">
-            <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-            >
-                <div className="text-center mb-16">
-                    <motion.h2 variants={itemVariants} className="heading-lg">
-                        My <span className="text-[var(--color-primary-500)]">Experience</span>
-                    </motion.h2>
-                    <motion.div variants={itemVariants} className="w-24 h-1 bg-[var(--color-primary-500)] mx-auto rounded-full"></motion.div>
-                </div>
+            <div className="max-w-4xl mx-auto py-10">
+                <h2 className="text-3xl font-bold text-center mb-6">My Experience</h2>
 
-                <div className="max-w-4xl mx-auto">
-                    <div className="relative border-l-2 border-[var(--color-primary-200)] dark:border-pink-900/40 ml-4 md:ml-0 md:pl-0 space-y-12">
-                        {experiences.map((exp, index) => (
-                            <motion.div
-                                key={exp.id}
-                                variants={itemVariants}
-                                className="relative md:flex items-center justify-between"
-                            >
-                                {/* Timeline dot */}
-                                <div className="absolute -left-[9px] md:left-1/2 md:-translate-x-1/2 mt-1.5 md:mt-0 w-4 h-4 rounded-full bg-[var(--color-primary-500)] border-4 border-white dark:border-gray-900 shadow-sm z-10"></div>
+                <div className="space-y-6">
+                    {timelineData.map((item, idx) => (
+                        <div key={idx} className="p-6 card transition-all duration-300 group">
+                            <h3 className="text-xl font-bold text-[var(--color-primary-500)] mb-1">{item.role}</h3>
+                            <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{item.company}</h4>
+                            <p className="text-gray-600 dark:text-gray-400 mt-2">{item.description}</p>
+                            <span className="inline-block mt-4 text-xs font-medium px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-full">{item.title}</span>
 
-                                {/* Content */}
-                                <div className={`ml-8 md:ml-0 w-full md:w-[45%] ${index % 2 === 0 ? 'md:pr-12 md:text-right md:ml-0 md:mr-auto' : 'md:pl-12 md:ml-auto'}`}>
-                                    <div className="card p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-                                        <span className="inline-block px-3 py-1 mb-3 text-xs font-semibold rounded-full bg-[var(--color-primary-50)] dark:bg-pink-900/30 text-[var(--color-primary-600)] dark:text-pink-300">
-                                            {exp.duration}
-                                        </span>
-                                        <h3 className="text-xl font-bold mb-1 text-gray-800 dark:text-white">
-                                            {exp.role}
-                                        </h3>
-                                        <h4 className="text-lg font-medium text-[var(--color-primary-500)] dark:text-[var(--color-primary-400)] mb-3">
-                                            {exp.company}
-                                        </h4>
-                                        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                                            {exp.description}
-                                        </p>
-                                    </div>
+                            {item.role === 'Finance Intern' && (
+                                <div className="mt-6 flex justify-start">
+                                    <button
+                                        onClick={() => {
+                                            window.scrollTo(0, 0);
+                                            navigate('/internship');
+                                        }}
+                                        className="cursor-target inline-flex items-center justify-center px-5 py-2 text-sm rounded-full bg-[var(--color-primary-50)] dark:bg-pink-900/30 text-[var(--color-primary-600)] dark:text-pink-300 font-medium hover:bg-[var(--color-primary-500)] hover:text-white dark:hover:bg-[var(--color-primary-500)] transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1"
+                                    >
+                                        View Detail
+                                    </button>
                                 </div>
-                            </motion.div>
-                        ))}
-                    </div>
+                            )}
+                        </div>
+                    ))}
                 </div>
-            </motion.div>
+                <div className="text-center mt-12">
+                    <a
+                        href="/CV_VINA.pdf"
+                        download="CV_VINA_Admin.pdf"
+                        className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-[var(--color-primary-500)] to-[#e11d48] text-white font-bold hover:shadow-lg hover:shadow-pink-500/30 transition-all"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M7.5 12 12 16.5m0 0L16.5 12M12 16.5V3" />
+                        </svg>
+                        Download CV
+                    </a>
+                </div>
+            </div>
         </section>
-    )
-}
+    );
+};
 
-export default Experience
+export default Experience;

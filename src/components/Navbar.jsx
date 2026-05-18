@@ -1,165 +1,95 @@
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useEffect, useState } from "react"
+import { motion } from "framer-motion"
+import { Link, useLocation } from "react-router-dom"
+import { cn } from "../lib/utils"
 
-const navLinks = [
-    { name: 'About', href: '#about' },
-    { name: 'Projects', href: '#projects' },
-    { name: 'Experience', href: '#experience' },
-    { name: 'Certificate', href: '#certificate' },
-    { name: 'Contact', href: '#contact' }
-]
+export default function NavBar({ items, className }) {
+    const [activeTab, setActiveTab] = useState(items[0].name)
+    const location = useLocation()
 
-const Navbar = ({ darkMode, toggleDarkMode }) => {
-    const [isScrolled, setIsScrolled] = useState(false)
-    const [activeSection, setActiveSection] = useState('')
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
-    // Handle Scroll and Scroll Spy
     useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50)
+        if (location.pathname !== "/") {
+            setActiveTab("") // No tab is "active" by hash if we aren't on the home page
+            return
+        }
 
-            // Scroll Spy Logic
-            const sections = navLinks.map(link => document.querySelector(link.href))
-            const scrollPosition = window.scrollY + 200 // Offset for fixed navbar
+        const observers = []
+        items.forEach((item) => {
+            const targetId = item.url.split("#")[1]
+            if (!targetId) return
 
-            for (let i = sections.length - 1; i >= 0; i--) {
-                const section = sections[i]
-                if (section && section.offsetTop <= scrollPosition) {
-                    setActiveSection(navLinks[i].href)
-                    break
-                }
+            const element = document.getElementById(targetId)
+            if (element) {
+                const observer = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach((entry) => {
+                            if (entry.isIntersecting && entry.intersectionRatio >= 0.2) {
+                                setActiveTab(item.name)
+                            }
+                        })
+                    },
+                    {
+                        threshold: [0, 0.2, 0.5, 0.8],
+                        rootMargin: "-15% 0px -15% 0px"
+                    }
+                )
+                observer.observe(element)
+                observers.push(observer)
             }
+        })
 
-            // Reset if at top
-            if (window.scrollY < 200) setActiveSection('')
+        return () => {
+            observers.forEach((obs) => obs.disconnect())
         }
-
-        window.addEventListener('scroll', handleScroll)
-        return () => window.removeEventListener('scroll', handleScroll)
-    }, [])
-
-    const handleNavClick = (e, href) => {
-        e.preventDefault()
-        setIsMobileMenuOpen(false)
-        const element = document.querySelector(href)
-        if (element) {
-            const offsetTop = element.offsetTop - 80 // Adjust offset
-            window.scrollTo({
-                top: offsetTop,
-                behavior: 'smooth'
-            })
-        }
-    }
+    }, [items, location.pathname])
 
     return (
         <nav
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm py-3'
-                    : 'bg-transparent py-5'
-                }`}
+            className={cn(
+                "fixed bottom-6 md:top-6 left-1/2 -translate-x-1/2 z-40 pointer-events-none",
+                className
+            )}
         >
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                {/* Logo */}
-                <motion.a
-                    href="#"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="text-2xl font-bold bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-400)] bg-clip-text text-transparent"
-                >
-                    Portofolio.
-                </motion.a>
+            <div className="pointer-events-auto flex items-center gap-2 sm:gap-3 bg-white/30 dark:bg-gray-900/50 border border-gray-200/50 dark:border-gray-800/50 backdrop-blur-xl py-1 px-1 rounded-full shadow-lg">
+                {items.map((item) => {
+                    const Icon = item.icon
+                    const isActive = activeTab === item.name
 
-                {/* Desktop Menu */}
-                <div className="hidden md:flex items-center space-x-8">
-                    {navLinks.map((link, i) => (
-                        <motion.a
-                            key={link.name}
-                            href={link.href}
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: i * 0.1 }}
-                            onClick={(e) => handleNavClick(e, link.href)}
-                            className={`text-sm font-medium transition-colors hover:text-[var(--color-primary-500)] ${activeSection === link.href
-                                    ? 'text-[var(--color-primary-500)] dark:text-[var(--color-primary-400)]'
-                                    : 'text-gray-600 dark:text-gray-300'
-                                }`}
+                    return (
+                        <Link
+                            key={item.name}
+                            to={item.url}
+                            onClick={() => {
+                                if (location.pathname === "/") {
+                                    setActiveTab(item.name)
+                                }
+                            }}
+                            className={cn(
+                                "relative cursor-pointer text-sm font-semibold px-4 sm:px-6 py-2 rounded-full transition-colors",
+                                "text-gray-600 dark:text-gray-300 hover:text-[var(--color-primary-500)]",
+                                isActive && "text-[var(--color-primary-600)] dark:text-[var(--color-primary-400)]"
+                            )}
                         >
-                            {link.name}
-                        </motion.a>
-                    ))}
+                            <span className="hidden md:inline">{item.name}</span>
+                            <span className="md:hidden">
+                                <Icon size={18} strokeWidth={2.5} />
+                            </span>
 
-                    <motion.button
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.5, delay: navLinks.length * 0.1 }}
-                        onClick={toggleDarkMode}
-                        className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        aria-label="Toggle Dark Mode"
-                    >
-                        {darkMode ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-                            </svg>
-                        ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-                            </svg>
-                        )}
-                    </motion.button>
-                </div>
-
-                {/* Mobile menu button */}
-                <div className="md:hidden flex items-center space-x-4">
-                    <button
-                        onClick={toggleDarkMode}
-                        className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                    >
-                        {darkMode ? '☀️' : '🌙'}
-                    </button>
-
-                    <button
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="text-gray-600 dark:text-gray-300 focus:outline-none"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d={isMobileMenuOpen ? "M6 18 18 6M6 6l12 12" : "M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"} />
-                        </svg>
-                    </button>
-                </div>
+                            {isActive && (
+                                <motion.div
+                                    layoutId="lamp"
+                                    className="absolute inset-0 bg-[var(--color-primary-50)] dark:bg-white/10 rounded-full -z-10"
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 300,
+                                        damping: 30,
+                                    }}
+                                />
+                            )}
+                        </Link>
+                    )
+                })}
             </div>
-
-            {/* Mobile Menu Dropdown */}
-            <AnimatePresence>
-                {isMobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="md:hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 overflow-hidden"
-                    >
-                        <div className="px-4 pt-2 pb-6 space-y-1">
-                            {navLinks.map((link) => (
-                                <a
-                                    key={link.name}
-                                    href={link.href}
-                                    onClick={(e) => handleNavClick(e, link.href)}
-                                    className={`block px-3 py-3 rounded-lg text-base font-medium ${activeSection === link.href
-                                            ? 'bg-[var(--color-primary-50)] dark:bg-gray-800 text-[var(--color-primary-600)] dark:text-[var(--color-primary-400)]'
-                                            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'
-                                        }`}
-                                >
-                                    {link.name}
-                                </a>
-                            ))}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </nav>
     )
 }
-
-export default Navbar
